@@ -4,6 +4,7 @@ import logging
 import os
 import random
 import json
+import argparse
 import requests
 import xml.etree.ElementTree as ET
 
@@ -165,6 +166,11 @@ RIJKSMUSEUM_FETCH_COUNT = 50  # Number of artworks to fetch when searching
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Upload artwork images to Samsung Frame TV')
+    parser.add_argument('--amount', '-n', type=int, default=1, help='Number of images to upload (default: 1, use 0 for all)')
+    parser.add_argument('--no-fetch', action='store_true', help='Skip fetching new artwork from Rijksmuseum')
+    args = parser.parse_args()
+
     # Load the list of uploaded filenames from the file
     if os.path.isfile(upload_list_path):
         with open(upload_list_path, 'r') as f:
@@ -189,7 +195,7 @@ def main():
         #logging.info(current_art)
 
         # Option 1: Fetch new artwork from Rijksmuseum
-        if USE_RIJKSMUSEUM:
+        if USE_RIJKSMUSEUM and not args.no_fetch:
             logging.info("Fetching artwork from Rijksmuseum...")
             new_file = fetch_and_download_random_artwork(folder_path, RIJKSMUSEUM_FETCH_COUNT)
             if new_file:
@@ -204,7 +210,11 @@ def main():
         if len(files) == 0:
             logging.warning('No new images to upload.')
         else:
-            logging.info(f'Found {len(files)} new images to upload.')
+            # Limit number of files to upload (0 = all)
+            if args.amount > 0:
+                files = random.sample(files, min(args.amount, len(files)))
+
+            logging.info(f'Uploading {len(files)} image(s)...')
 
             last_uploaded = None
             for file in files:
@@ -234,7 +244,7 @@ def main():
             with open(upload_list_path, 'w') as f:
                 json.dump(uploaded_files, f)
 
-            logging.info(f'Done! Uploaded {len(files)} images.')
+            logging.info(f'Done! Uploaded {len(files)} image(s).')
     else:
         logging.warning('Your TV does not support art mode.')
 
