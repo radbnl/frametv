@@ -1,2 +1,33 @@
-**/**/.env
-**/**/node_modules/
+# Environment
+.env
+.env.*
+
+# Node.js (legacy)
+node_modules/
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Claude Code
+.claude/
+
+# User-specific data
+uploaded_files.json
+
+# Downloaded images (keep folder, ignore contents)
+images/*.jpg
+images/*.png
+!images/.gitkeep
+
+# macOS
+.DS_Store
